@@ -522,6 +522,29 @@ class LowMemoryInjector(MCInjector):
         return self.band_mask_cache.getrow(entry["source_index"][0]).toarray()[0]
 
 
+import pandas as pd
+
+
+@MCInjector.register_subclass("pandas_injector")
+class PandasInjector(MCInjector):
+    """
+    For even larger numbers of sources O(~1000), accessing every element of the
+    MC array in select_band_mask() once for every source becomes a bottleneck.
+    Slicing a pandas DataFrame is so much cheaper than a structured array that
+    it doesn't even make sense to cache the band masks.
+    """
+
+    def __init__(self, season, sources, **kwargs):
+        season.get_mc = lambda self: pd.DataFrame(type(self).get_mc())
+        super().__init__(self, season, sources, **kwargs)
+
+    def get_band_mask(self, source, min_dec, max_dec):
+        return np.logical_and(
+            np.greater(self._mc["trueDec"], min_dec),
+            np.less(self._mc["trueDec"], max_dec),
+        )
+
+
 @MCInjector.register_subclass("effective_area_injector")
 class EffectiveAreaInjector(BaseInjector):
     """Class for injecting signal events by relying on effective areas rather
