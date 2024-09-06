@@ -1411,7 +1411,7 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
 
         data = Table(data[np.argsort(data["dec"])])
 
-        coincidence_matrix = sparse.csr_matrix(
+        coincidence_matrix = sparse.lil_matrix(
             (len(self.sources), len(data)), dtype=bool
         )
 
@@ -1453,6 +1453,8 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
 
                 coincidence_matrix[i, dec_mask.start : dec_mask.stop] = ra_mask
 
+        coincidence_matrix = coincidence_matrix.tocsr()
+
         # Using Sparse matrixes
         coincident_nu_mask = np.sum(coincidence_matrix, axis=0) > 0
         coincident_nu_mask = np.array(coincident_nu_mask).ravel()
@@ -1462,7 +1464,6 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
         coincidence_matrix = (
             coincidence_matrix[coincident_source_mask].T[coincident_nu_mask].T
         )
-        coincidence_matrix.tocsr()
 
         coincident_data = data[coincident_nu_mask]
         coincident_sources = sources[coincident_source_mask]
