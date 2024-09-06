@@ -526,13 +526,14 @@ class LowMemoryInjector(MCInjector):
         return self.band_mask_cache.getrow(entry["source_index"][0]).toarray()[0]
 
 
-@MCInjector.register_subclass("pandas_injector")
-class PandasInjector(MCInjector):
+@MCInjector.register_subclass("table_injector")
+class TableInjector(MCInjector):
     """
     For even larger numbers of sources O(~1000), accessing every element of the
-    MC array in select_band_mask() once for every source becomes a bottleneck.
-    Store event fields in columns, ordered by declination, making single-field
-    accesses vastly cheaper and band masks practically free.
+    MC array in select_band_mask() once for every source in calculate_n_exp()
+    becomes a bottleneck. Store event fields in columns, ordered by declination,
+    making single-field accesses vastly cheaper and band masks practically free.
+    For 1000 sources, calculate_n_exp() is ~60x faster than MCInjector.
     """
 
     def get_mc(self, season):
