@@ -536,7 +536,7 @@ class PandasInjector(MCInjector):
 
     def __init__(self, season, sources, **kwargs):
         season.get_mc = lambda self: pd.DataFrame(type(self).get_mc())
-        super().__init__(self, season, sources, **kwargs)
+        super().__init__(season, sources, **kwargs)
 
     def get_band_mask(self, source, min_dec, max_dec):
         return np.logical_and(
