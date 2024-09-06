@@ -545,7 +545,7 @@ class PandasInjector(MCInjector):
         return table
 
     def get_band_mask(self, source, min_dec, max_dec):
-        return slice(*np.searchsorted([min_dec, max_dec]))
+        return slice(*np.searchsorted(self._mc["trueDec"], [min_dec, max_dec]))
 
     def select_mc_band(self, source):
         table, omega, band_mask = super().select_mc_band(source)
