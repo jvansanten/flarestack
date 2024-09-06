@@ -1383,7 +1383,7 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
         max_dec = min(np.pi / 2.0, source["dec_rad"] + width)
 
         # Accepts events lying within a 5 degree band of the source
-        dec_mask = slice(*np.searchsorted(data["dec"], min_dec, max_dec))
+        dec_mask = slice(*np.searchsorted(data["dec"], [min_dec, max_dec]))
 
         # Sets the minimum value of cos(dec)
         cos_factor = np.amin(np.cos([min_dec, max_dec]))
