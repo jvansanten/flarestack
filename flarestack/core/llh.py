@@ -1451,9 +1451,11 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
 
                 coincidence_matrix_rows.append(
                     sparse.csr_matrix(
-                        np.ones(column_indices.shape, dtype=bool),
-                        column_indices,
-                        [0, len(column_indices)],
+                        (
+                            np.ones(column_indices.shape, dtype=bool),
+                            column_indices,
+                            [0, len(column_indices)],
+                        )
                     )
                 )
 
