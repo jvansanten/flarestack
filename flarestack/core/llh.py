@@ -1371,7 +1371,7 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
                 + "please change 'the spatial_pdf_name' accordingly"
             )
 
-    def get_dec_ra_masks(self, data, source) -> "tuple[slice, np.ndarray]":
+    def get_spatially_coincident_indices(self, data, source) -> np.ndarray:
         """
         Get spatially coincident data for a single source, taking advantage of
         the fact that data are sorted in dec
@@ -1398,9 +1398,7 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
         ra_dist = np.fabs(
             (data["ra"][dec_range] - source["ra_rad"] + np.pi) % (2.0 * np.pi) - np.pi
         )
-        ra_idx = np.nonzero(ra_dist < dPhi / 2.0)[0]
-
-        return dec_range, ra_idx
+        return np.nonzero(ra_dist < dPhi / 2.0)[0] + dec_range.start
 
     def create_kwargs(self, data, pull_corrector, weight_f=None):
         if weight_f is None:
@@ -1420,8 +1418,8 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
         sources = self.sources
 
         for i, source in enumerate(sources):
-            dec_range, ra_idx = self.get_dec_ra_masks(data, source)
-            coincident_data = data[dec_range][ra_idx]
+            idx = self.get_spatially_coincident_indices(data, source)
+            coincident_data = data[idx]
 
             if len(coincident_data) > 0:
                 # Only bother accepting neutrinos where the spacial
@@ -1447,7 +1445,7 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
                     sig = self.signal_pdf(source, coincident_data, gamma=2.0)
 
                 nonzero_idx = np.nonzero(sig > spatial_mask_threshold)[0]
-                column_indices = ra_idx[nonzero_idx] + dec_range.start
+                column_indices = idx[nonzero_idx]
 
                 coincidence_matrix_rows.append(
                     sparse.csr_matrix(
@@ -1455,7 +1453,8 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
                             np.ones(column_indices.shape, dtype=bool),
                             column_indices,
                             [0, len(column_indices)],
-                        )
+                        ),
+                        shape=(1, len(data)),
                     )
                 )
 
