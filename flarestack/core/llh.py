@@ -1398,7 +1398,7 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
         ra_dist = np.fabs(
             (data["ra"][dec_range] - source["ra_rad"] + np.pi) % (2.0 * np.pi) - np.pi
         )
-        ra_idx = np.nonzero(ra_dist < dPhi / 2.0)
+        ra_idx = np.nonzero(ra_dist < dPhi / 2.0)[0]
 
         return dec_range, ra_idx
 
@@ -1409,7 +1409,7 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
                 "standard_overlapping LLH functions."
             )
 
-        data = Table(data[np.argsort(data["dec"])])
+        data = Table(data[np.argsort(data[["dec", "ra"]])])
 
         coincidence_matrix_rows = []
 
@@ -1446,7 +1446,7 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
                 ):
                     sig = self.signal_pdf(source, coincident_data, gamma=2.0)
 
-                nonzero_idx = np.nonzero(sig > spatial_mask_threshold)
+                nonzero_idx = np.nonzero(sig > spatial_mask_threshold)[0]
                 column_indices = ra_idx[nonzero_idx] + dec_range.start
 
                 coincidence_matrix_rows.append(
