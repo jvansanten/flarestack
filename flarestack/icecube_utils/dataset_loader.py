@@ -74,7 +74,7 @@ def data_loader(data_path, floor=True, cut_fields=True) -> Table:
         mask = [x for x in dataset.columns if x in allowed_fields]
 
         dataset = dataset[mask]
-    
+
     # prevent accidental in-place updates
     for col in dataset.columns.values():
         col.setflags(write=False)

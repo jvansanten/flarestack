@@ -14,6 +14,7 @@ from scipy import sparse, interpolate
 from flarestack.shared import k_to_flux
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from flarestack.data import SeasonWithMC
 
