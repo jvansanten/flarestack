@@ -248,7 +248,7 @@ class MCInjector(BaseInjector):
             logger.warning("No Injection Arguments. Are you unblinding?")
             pass
 
-    def get_mc(self, season: SeasonWithMC) -> Table:
+    def get_mc(self, season: "SeasonWithMC") -> Table:
         return season.get_mc()
 
     def select_mc_band(self, source):
@@ -540,7 +540,7 @@ class TableInjector(MCInjector):
     For 1000 sources, calculate_n_exp() is ~60x faster than MCInjector.
     """
 
-    def get_mc(self, season: SeasonWithMC) -> Table:
+    def get_mc(self, season: "SeasonWithMC") -> Table:
         mc = season.get_mc().copy(copy_data=False)
         mc.sort("trueDec")
         for col in mc.columns.values():
