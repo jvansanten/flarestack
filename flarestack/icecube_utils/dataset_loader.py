@@ -22,6 +22,10 @@ def data_loader(data_path, floor=True, cut_fields=True):
     else:
         dataset = np.load(data_path, allow_pickle=True)
     
+    # Copy fields of the structured array into individual columns. This takes one
+    # pass over the array for each column, which thrashes the cache quite a lot
+    # (taking ~5x longer than just reading the array from disk), but vastly
+    # improves cache use down the line.
     dataset = Table(dataset)
 
     if "sinDec" not in dataset.columns:
