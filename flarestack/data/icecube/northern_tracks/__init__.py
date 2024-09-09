@@ -115,5 +115,5 @@ class NTSeasonNewStyle(NTSeason):
         mc = super(NTSeasonNewStyle, self).get_background_model()
         livetime = self.get_time_pdf().get_livetime()
         for weight in ("astro", "weight", "prompt"):
-            mc[weight] *= livetime * 86400.0
+            mc[weight] = mc[weight] * livetime * 86400.0
         return mc

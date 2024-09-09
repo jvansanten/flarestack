@@ -187,7 +187,7 @@ class Season:
         exp.add_column(np.ones(len(exp), dtype=float), name="weight")
         return exp
 
-    def get_background_model(self) -> dict:
+    def get_background_model(self) -> Table:
         """Generic Function to return background model. This could be
         the experimental data (if the signal contamination is small),
         or a weighted MC dataset. By default, uses data."""
