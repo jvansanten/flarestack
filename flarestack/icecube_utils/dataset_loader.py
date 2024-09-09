@@ -28,8 +28,6 @@ def data_loader(data_path, floor=True, cut_fields=True) -> Table:
     # (taking ~5x longer than just reading the array from disk), but vastly
     # improves cache use down the line.
     dataset = Table(dataset)
-    for col in dataset.columns.values():
-        col.setflags(write=False)
 
     if "sinDec" not in dataset.columns:
         dataset.add_column(np.sin(dataset["dec"]), name="sinDec")
@@ -76,6 +74,10 @@ def data_loader(data_path, floor=True, cut_fields=True) -> Table:
         mask = [x for x in dataset.columns if x in allowed_fields]
 
         dataset = dataset[mask]
+    
+    # prevent accidental in-place updates
+    for col in dataset.columns.values():
+        col.setflags(write=False)
 
     return dataset
 
