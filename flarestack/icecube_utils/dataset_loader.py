@@ -4,9 +4,10 @@ from astropy.table import Table
 from numpy.lib.recfunctions import append_fields, rename_fields
 from flarestack.shared import min_angular_err
 
-logger = logging.getLogger(__name__)    
+logger = logging.getLogger(__name__)
 
-def data_loader(data_path, floor=True, cut_fields=True):
+
+def data_loader(data_path, floor=True, cut_fields=True) -> Table:
     """Helper function to load data for a given season/set of season.
     Adds sinDec field if this is not available, and combines multiple years
     of data is appropriate (different sets of data from the same icecube
@@ -21,12 +22,14 @@ def data_loader(data_path, floor=True, cut_fields=True):
         dataset = np.concatenate(tuple([np.load(x) for x in data_path]))
     else:
         dataset = np.load(data_path, allow_pickle=True)
-    
+
     # Copy fields of the structured array into individual columns. This takes one
     # pass over the array for each column, which thrashes the cache quite a lot
     # (taking ~5x longer than just reading the array from disk), but vastly
     # improves cache use down the line.
     dataset = Table(dataset)
+    for col in dataset.columns.values():
+        col.setflags(write=False)
 
     if "sinDec" not in dataset.columns:
         dataset.add_column(np.sin(dataset["dec"]), name="sinDec")
@@ -39,8 +42,8 @@ def data_loader(data_path, floor=True, cut_fields=True):
 
     # Check if 'sigma' or 'angErr' is Used
 
-    if "sigma" not in dataset.dtype.names:
-        if "angErr" in dataset.dtype.names:
+    if "sigma" not in dataset.columns:
+        if "angErr" in dataset.columns:
             dataset.rename_column("angErr", "sigma")
         else:
             raise Exception(
