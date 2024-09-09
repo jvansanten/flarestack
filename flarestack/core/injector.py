@@ -1,6 +1,5 @@
 import logging
 import os
-from flarestack.data import SeasonWithMC
 import numpy as np
 import random
 import zipfile
@@ -13,6 +12,10 @@ from flarestack.core.spatial_pdf import SpatialPDF
 from flarestack.utils.catalogue_loader import calculate_source_weight
 from scipy import sparse, interpolate
 from flarestack.shared import k_to_flux
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from flarestack.data import SeasonWithMC
 
 logger = logging.getLogger(__name__)
 
