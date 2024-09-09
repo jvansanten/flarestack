@@ -1,10 +1,10 @@
 import numpy as np
 import logging
+from astropy.table import Table
 from numpy.lib.recfunctions import append_fields, rename_fields
 from flarestack.shared import min_angular_err
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger(__name__)    
 
 def data_loader(data_path, floor=True, cut_fields=True):
     """Helper function to load data for a given season/set of season.
@@ -21,44 +21,38 @@ def data_loader(data_path, floor=True, cut_fields=True):
         dataset = np.concatenate(tuple([np.load(x) for x in data_path]))
     else:
         dataset = np.load(data_path, allow_pickle=True)
+    
+    dataset = Table(dataset)
 
-    if "sinDec" not in dataset.dtype.names:
-        new_dtype = np.dtype([("sinDec", float)])
-
-        sinDec = np.array(np.sin(dataset["dec"]), dtype=new_dtype)
-
-        dataset = append_fields(
-            dataset, "sinDec", sinDec, usemask=False, dtypes=[float]
-        )
+    if "sinDec" not in dataset.columns:
+        dataset.add_column(np.sin(dataset["dec"]), name="sinDec")
 
     # Check if 'run' or 'Run'
 
-    if "run" not in dataset.dtype.names:
-        if "Run" in dataset.dtype.names:
-            dataset = rename_fields(dataset, {"Run": "run"})
+    if "run" not in dataset.columns:
+        if "Run" in dataset.columns:
+            dataset.rename_column("Run", "run")
 
     # Check if 'sigma' or 'angErr' is Used
 
     if "sigma" not in dataset.dtype.names:
         if "angErr" in dataset.dtype.names:
-            dataset = rename_fields(dataset, {"angErr": "sigma"})
+            dataset.rename_column("angErr", "sigma")
         else:
             raise Exception(
                 "No recognised Angular Error field found in "
                 "dataset. (Searched for 'sigma' and 'angErr')"
             )
 
-    if "raw_sigma" not in dataset.dtype.names:
-        dataset = append_fields(
-            dataset, "raw_sigma", dataset["sigma"], usemask=False, dtypes=[float]
-        )
+    if "raw_sigma" not in dataset.columns:
+        dataset.add_column(dataset["sigma"], name="raw_sigma")
 
     # Apply a minimum angular error "floor"
     if floor:
         dataset["sigma"][dataset["sigma"] < min_angular_err] = min_angular_err
 
     if cut_fields:
-        allowed_fields = [
+        allowed_fields = {
             "time",
             "ra",
             "dec",
@@ -70,9 +64,9 @@ def data_loader(data_path, floor=True, cut_fields=True):
             "ow",
             "sinDec",
             "raw_sigma",
-        ]
+        }
 
-        mask = [x for x in dataset.dtype.names if x in allowed_fields]
+        mask = [x for x in dataset.columns if x in allowed_fields]
 
         dataset = dataset[mask]
 
