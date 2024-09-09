@@ -1419,7 +1419,7 @@ class StdMatrixKDEEnabledLLH(StandardOverlappingLLH):
         kwargs["n_all"] = float(len(data))
 
         # Treat sources in declination order to keep caches hot
-        order = np.argsort(self.sources["dec_rad", "ra_rad"])
+        order = np.argsort(self.sources[["dec_rad", "ra_rad"]])
         for i in order:
             source = self.sources[i]
             idx = self.get_spatially_coincident_indices(data, source)
