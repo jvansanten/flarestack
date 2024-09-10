@@ -12,6 +12,7 @@ ALLOWED_FIELDS = {
     "ra",
     "dec",
     "sigma",
+    "angErr",
     "logE",
     "trueE",
     "trueRa",
