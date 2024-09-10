@@ -27,13 +27,15 @@ def _load_data_table(path_or_str, cut_fields=True) -> Table:
     path = Path(path_or_str)
     if path.with_suffix(".npz").exists():
         data = np.load(path.with_suffix(".npz"))
+        fields = data.keys()
         copy = False
     else:
         data = np.load(path, allow_pickle=True)
+        fields = data.dtype.names
         # Copy fields into individual columns to improve memory locality
         copy = True
     if cut_fields:
-        return Table({k: data[k] for k in data if k in ALLOWED_FIELDS}, copy=copy)
+        return Table({k: data[k] for k in fields if k in ALLOWED_FIELDS}, copy=copy)
     else:
         return Table(data, copy=copy)
 
