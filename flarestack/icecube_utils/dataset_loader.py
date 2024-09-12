@@ -5,6 +5,8 @@ from numpy.lib.recfunctions import rename_fields
 from flarestack.shared import min_angular_err
 from pathlib import Path
 
+import polars as pl
+
 logger = logging.getLogger(__name__)
 
 ALLOWED_FIELDS = {
@@ -89,6 +91,48 @@ def data_loader(data_path, floor=True, cut_fields=True) -> Table:
 
     return dataset
 
+def polars_data_loader(data_path, floor=True, cut_fields=True) -> pl.LazyFrame:
+    """Helper function to load data for a given season/set of season.
+    Adds sinDec field if this is not available, and combines multiple years
+    of data is appropriate (different sets of data from the same icecube
+    configuration should be given as a list)
+
+    :param data_path: Path to data or list of paths to data
+    :param cut_fields: Boolean to remove unused fields from datasets on loading
+    :return: Loaded Dataset (experimental or MC)
+    """
+
+    columns = pl.read_parquet_schema(data_path)
+
+    q = pl.scan_parquet(data_path)
+
+    q = q.select(*ALLOWED_FIELDS.intersection(columns)) if cut_fields else q.select(pl.all())
+
+    if "sinDec" not in columns:
+        q = q.with_columns(sinDec=pl.col("dec").sin())
+
+    # Check if 'run' or 'Run'
+    if "run" not in columns and "Run" in columns:
+        q = q.rename({"Run": "run"})
+
+    # Check if 'sigma' or 'angErr' is Used
+    if "sigma" not in columns:
+        if "angErr" in columns:
+            q = q.rename({"angErr": "sigma"})
+        else:
+            raise Exception(
+                "No recognised Angular Error field found in "
+                "dataset. (Searched for 'sigma' and 'angErr')"
+            )
+    
+    if "raw_sigma" not in columns:
+        q = q.with_columns(raw_sigma=pl.col("sigma"))
+
+    # Apply a minimum angular error "floor"
+    if floor:
+        q = q.with_columns(sigma=pl.max(pl.col("sigma"), min_angular_err))
+
+    return q
 
 def grl_loader(season):
     if isinstance(season.grl_path, list):
