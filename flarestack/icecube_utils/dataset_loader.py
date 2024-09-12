@@ -130,7 +130,7 @@ def polars_data_loader(data_path, floor=True, cut_fields=True) -> pl.LazyFrame:
 
     # Apply a minimum angular error "floor"
     if floor:
-        q = q.with_columns(sigma=pl.max(pl.col("sigma"), min_angular_err))
+        q = q.with_columns(sigma=pl.max_horizontal(pl.col("sigma"), pl.lit(min_angular_err)))
 
     return q
 
