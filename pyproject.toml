@@ -50,6 +50,18 @@ isort = "^6.0.0"
 pre-commit = "^4.1.0"
 coveralls = ">=3.3.1,<5.0.0"
 
+[tool.conda-lock]
+channels = ["conda-forge"]
+platforms = [
+	"osx-arm64",
+	"linux-64",
+]
+
+[tool.conda-lock.dependencies]
+python = "=3.11"
+photospline = ">2"
+pandas = "=2.1"
+
 [tool.isort]
 profile = "black"
 
