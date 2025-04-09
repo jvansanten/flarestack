@@ -83,15 +83,20 @@ If you do want to contribute to _flarestack_, you can check out some guidelines 
 
 
 ### Using KDE PDFs
-If you want to use the KDE spatial PDFs you need to install `photospline` using `conda`.
-`flarestack` ships with a `conda_env.yml` file that pins the correct `photospline` version. 
-Find your `flarestack` directory (either in your `site-packages` directory if you followed Option A or in your `git` clone if you followed Option B) and execute:
+If you want to use the KDE spatial PDFs you need to install `photospline` using `micromamba`.
+`flarestack` ships with a `conda-lock.yml` file that pins all dependencies to the correct version.
+Instead of options A or B:
 
-```shell
-conda env create -f conda_env.yml
-```
+1. [Install micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html#automatic-install). Accept the defaults offered by the installation script.
+2. `micromamba create -y --prefix ./venv -f conda-lock.yml`
+3. `./venv/bin/pip install --no-deps -e .`
 
-Alternatively, You can try and install the latest `photospline` version with as described [here](https://anaconda.org/conda-forge/photospline).
+Now, either activate the environment with `micromamba activate --prefix ./venv`, or simply invoke `./venv/bin/python` to 
+
+#### Updating the lockfile
+
+1. [Install conda-lock](https://conda.github.io/conda-lock/getting_started/)
+2. `conda-lock -f pyproject.toml --filter-categories --no-dev-dependencies`
 
 
 ### Right, anyway, I've now downloaded *flarestack*. Can I use it right away?
